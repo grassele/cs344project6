@@ -23,6 +23,11 @@ int padded_block_size = PADDED_SIZE(sizeof(struct block));
 
 
 int main(void) {
+    void *p;
+
+    p = myalloc(10); print_data();
+
+    myfree(p); print_data();
 }
 
 
@@ -68,6 +73,15 @@ void split_block(struct block *n, int padded_data_size) {
 void myfree(void *p) {
     struct block *n = p - padded_block_size;
     n->in_use = 0;
+
+    struct block *cur = head;
+    while (cur->next != NULL) {
+        if (cur->in_use == 0 && (cur->next)->in_use == 0) {
+            cur->size += padded_block_size + (cur->next)->size;
+            cur->next = (cur->next)->next;
+        }
+        cur = cur->next;
+    }
 }
 
 
